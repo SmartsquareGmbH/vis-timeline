@@ -1,0 +1,104 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  GIT_AUTHOR_EMAIL: opensource@smartsquare.de
+  GIT_AUTHOR_NAME: smartsquare-bot
+  GIT_COMMITTER_EMAIL: opensource@smartsquare.de
+  GIT_COMMITTER_NAME: smartsquare-bot
+
+jobs:
+  build-and-test:
+    runs-on: warp-ubuntu-latest-x64-4x
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.3'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Generate examples index
+        run: npm run generate-examples-index
+
+      # Uncomment when code base is ready
+      # - name: Lint
+      #   run: npm run lint
+
+      - name: Test
+        run: npm run test-cov
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            declarations/
+            dist/
+            esnext/
+            peer/
+            standalone/
+            styles/
+            types/
+            examples/
+            coverage/
+            docs/
+            LICENSE*
+            *.html
+            *.md
+
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/master'
+    runs-on: warp-ubuntu-latest-x64-4x
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.3'
+
+  release:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/master'
+    runs-on: warp-ubuntu-latest-x64-4x
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.3'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
