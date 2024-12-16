@@ -31,8 +31,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Generate examples index
-        run: npm run generate-examples-index
+      # Not needed for now
+      # - name: Generate examples index
+      #   run: npm run generate-examples-index
 
       # Uncomment when code base is ready
       # - name: Lint
