@@ -14,7 +14,7 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: warp-ubuntu-latest-x64-4x
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +22,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '21.7.3'
-          cache: 'npm'
+          node-version: "21.7.3"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -63,7 +63,7 @@ jobs:
   deploy:
     needs: build-and-test
     if: github.ref == 'refs/heads/master'
-    runs-on: warp-ubuntu-latest-x64-4x
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -76,12 +76,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '21.7.3'
+          node-version: "21.7.3"
 
   release:
     needs: build-and-test
     if: github.ref == 'refs/heads/master'
-    runs-on: warp-ubuntu-latest-x64-4x
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -94,8 +94,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '21.7.3'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "21.7.3"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Release
         env:
