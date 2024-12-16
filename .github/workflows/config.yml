@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 env:
   GIT_AUTHOR_EMAIL: opensource@smartsquare.de
@@ -61,24 +61,6 @@ jobs:
             *.html
             *.md
 
-  deploy:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "21.7.3"
-
   release:
     needs: build-and-test
     if: github.ref == 'refs/heads/master'
@@ -102,4 +84,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
         run: npx semantic-release
+
+        permissions:
+          contents: write # to be able to publish a GitHub release
+          issues: write # to be able to comment on released issues
+          pull-requests: write # to be able to comment on released pull requests
+          id-token: write # to enable use of OIDC for npm provenance
