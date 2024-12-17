@@ -31,14 +31,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Not needed for now
-      # - name: Generate examples index
-      #   run: npm run generate-examples-index
-
-      # Uncomment when code base is ready
-      # - name: Lint
-      #   run: npm run lint
-
       - name: Test
         run: npm run test-cov
 
